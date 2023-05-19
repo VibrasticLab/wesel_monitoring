@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "TE-830M1")(type "KiCad")(uri "${KIPRJMOD}/libs/Package_PLLC/TE-830M1.kicad_sym")(options "")(descr ""))
+)
