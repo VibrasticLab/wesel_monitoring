@@ -5,3 +5,6 @@ fp-info-cache
 libs/3d/
 *-backups
 model
+*.bak
+*.png
+*.jpg
