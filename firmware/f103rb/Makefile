@@ -92,12 +92,13 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F1xx/platform.mk
-include $(CHIBIOS)/os/hal/boards/ST_NUCLEO_F103RB/board.mk
+include board/board.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
+include ../vib/vib.mk
 
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
@@ -111,7 +112,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       main.c
+       $(VIBSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -141,7 +142,7 @@ TCPPSRC =
 ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
 INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) \
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(VIBINC) \
          $(CHIBIOS)/os/various
 
 #
