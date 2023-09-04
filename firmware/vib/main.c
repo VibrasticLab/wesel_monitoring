@@ -33,6 +33,7 @@ int main(void) {
   chSysInit();
 
   vib_Serial_Init();
+  vib_Analog_Init();
 
   /*
    * Creates the blinker thread.
