@@ -20,7 +20,7 @@ from threading import Thread as thd
 
 class SerialPlotTest():
 
-    DataLong    = 2048
+    DataLong    = 1024
     DataIdx     = 0
     PlotUpd     = True
     SerThdRun   = True
@@ -30,7 +30,7 @@ class SerialPlotTest():
 
         # main Window
         self.window = tk.Tk()
-        self.window.geometry("480x320")
+        self.window.geometry("800x600")
         self.window.resizable(False,False)
         self.window.title("Serial Plot Test")
 
@@ -53,11 +53,11 @@ class SerialPlotTest():
         self.Y = np.zeros(self.DataLong, dtype='i2')
 
         # Example Figure Plot
-        self.fig = Figure(figsize=(5, 4), dpi=100,facecolor='black')
+        self.fig = Figure(figsize=(8, 6), dpi=100,facecolor='white')
         self.ax = self.fig.add_subplot(111)
         self.ax.set_facecolor('white')
         self.ax.grid(True,which='both',ls='-')
-        self.ax.set_ylim(0,4096)
+        self.ax.set_ylim(1500,2500)
         self.line, = self.ax.plot(self.X, self.Y)
 
         style.use('ggplot')
@@ -100,7 +100,9 @@ class SerialPlotTest():
         while self.SerThdRun:
             try:
                 serVal = self.serPort.readline()
-            except:
+            except serial.SerialException:
+                self.serPort.close()
+                self.serPort.open()
                 continue
 
             while not '\\n' in str(serVal):
