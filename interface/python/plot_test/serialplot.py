@@ -69,7 +69,7 @@ class SerialPlotTest():
         self.graphfrm.pack(side=tk.BOTTOM,expand=True)
 
         # Serial Port
-        self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=1)
+        self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=0.01)
 
         # start graph animation
         self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.005, repeat=False)
@@ -98,12 +98,19 @@ class SerialPlotTest():
 
     def serial_read(self):
         while self.SerThdRun:
-            serVal = self.serPort.readline()
-            valY = int(serVal)
-            print(valY)
-            self.array_value(valY)
+            try:
+                serVal = self.serPort.readline()
+            except:
+                pass
+            else:
+                pass
 
-            sleep(0.01)
+            if not serVal:
+                sleep(0.1)
+                continue
+            else:
+                print(serVal)
+                self.array_value(int(serVal))
 
     def graphupdate(self,args):
         if self.PlotUpd:
