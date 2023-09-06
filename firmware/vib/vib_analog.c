@@ -26,7 +26,7 @@ void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n){
         }
 
         adc_z = sum_adc_tps/10;
-        chprintf((BaseSequentialStream*)&SD1,"%i\r\n",adc_z);
+        chprintf((BaseSequentialStream*)&SD1,"%4i\r\n",adc_z);
     }
 }
 

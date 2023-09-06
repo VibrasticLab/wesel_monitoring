@@ -72,7 +72,7 @@ class SerialPlotTest():
         self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=0)
 
         # start graph animation
-        self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.00005, repeat=False)
+        self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.00005, repeat=False, cache_frame_data=False)
         self.aniplot._start()
 
         # serial thread
@@ -98,21 +98,10 @@ class SerialPlotTest():
 
     def serial_read(self):
         while self.SerThdRun:
-            try:
-                serVal = self.serPort.readline()
-            except serial.SerialException:
-                self.serPort.close()
-                self.serPort.open()
-                continue
-
-            while not '\\n' in str(serVal):
-                sleep(0.00005)
-                serTemp = self.serPort.readline()
-                if not not serTemp.decode():
-                    serVal = (serVal.decode() + serTemp.decode()).encode()
-
-            #print(serVal.decode().rstrip())
-            self.array_value(int(serVal.decode()))
+            serVal = self.serPort.readline()
+            if len(serVal)>5: # %4i and CR/LF
+                valY = int(serVal)
+                self.array_value(valY)
 
             sleep(0.0001)
 
