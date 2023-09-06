@@ -4,6 +4,7 @@
 # gui toolkit
 import tkinter as tk
 from tkinter import font
+import tkinter.filedialog as filedlg
 
 # plotting features
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -20,10 +21,11 @@ from threading import Thread as thd
 
 class SerialPlotTest():
 
-    DataLong    = 1024
+    DataLong    = 512
     DataIdx     = 0
     PlotUpd     = True
     SerThdRun   = True
+    SavName     = ''
 
     def __init__(self):
         super(SerialPlotTest, self).__init__()
@@ -45,6 +47,20 @@ class SerialPlotTest():
         self.infofrm = tk.Frame(self.window)
         self.infofrm.pack(side=tk.TOP)
 
+        # Button Frame
+        self.buttonfrm = tk.Frame(self.infofrm)
+        self.buttonfrm.pack(side=tk.TOP)
+
+        # Plot Button
+        self.pausebtn = tk.Button(self.buttonfrm, text="Pause", command=self.plot_pause)
+        self.pausebtn.config(font=wndfont)
+        self.pausebtn.pack(side=tk.RIGHT)
+
+        # Save Image Button
+        self.pausebtn = tk.Button(self.buttonfrm, text="Save", command=self.plot_save)
+        self.pausebtn.config(font=wndfont)
+        self.pausebtn.pack(side=tk.LEFT)
+
         # Graph Frame
         self.graphfrm = tk.Frame()
 
@@ -53,7 +69,7 @@ class SerialPlotTest():
         self.Y = np.zeros(self.DataLong, dtype='i2')
 
         # Example Figure Plot
-        self.fig = Figure(figsize=(8, 6), dpi=100,facecolor='white')
+        self.fig = Figure(figsize=(11, 9), dpi=100,facecolor='white')
         self.ax = self.fig.add_subplot(111)
         self.ax.set_facecolor('white')
         self.ax.grid(True,which='both',ls='-')
@@ -81,6 +97,20 @@ class SerialPlotTest():
         # window loop
         self.window.protocol("WM_DELETE_WINDOW",self.wnd_closing)
         self.window.mainloop()
+
+    def plot_save(self):
+        self.SavName = str(filedlg.asksaveasfilename(
+            initialfile = 'plot.png',
+            defaultextension=".png",
+            filetypes=[("PNG Image","*.png")]))
+        print(self.SavName)
+        self.fig.savefig(self.SavName,format='png')
+
+    def plot_pause(self):
+        if self.PlotUpd:
+            self.PlotUpd = False
+        else:
+            self.PlotUpd = True
 
     def array_value(self,val_Y):
         self.Y[self.DataIdx] = val_Y
