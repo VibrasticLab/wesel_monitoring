@@ -103,7 +103,6 @@ class SerialPlotTest():
             initialfile = 'plot.png',
             defaultextension=".png",
             filetypes=[("PNG Image","*.png")]))
-        print(self.SavName)
         self.fig.savefig(self.SavName,format='png')
 
     def plot_pause(self):
