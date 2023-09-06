@@ -49,7 +49,8 @@ static THD_WORKING_AREA(wa_adcThread, 128);
 static THD_FUNCTION(adcThread, arg) {
   (void)arg;
   while (TRUE) {
-    chThdSleepMilliseconds(10);
+    //chThdSleepMilliseconds(10);
+    chThdSleepMicroseconds(125);
     adcStartConversion(&ADCD1, &adcgrpcfg, samples, ADC_GRP1_BUF_DEPTH);
   }
 }

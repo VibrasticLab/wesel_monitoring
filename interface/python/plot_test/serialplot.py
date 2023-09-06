@@ -72,7 +72,7 @@ class SerialPlotTest():
         self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=0)
 
         # start graph animation
-        self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.001, repeat=False)
+        self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.00005, repeat=False)
         self.aniplot._start()
 
         # serial thread
@@ -106,15 +106,15 @@ class SerialPlotTest():
                 continue
 
             while not '\\n' in str(serVal):
-                sleep(0.001)
+                sleep(0.00005)
                 serTemp = self.serPort.readline()
                 if not not serTemp.decode():
                     serVal = (serVal.decode() + serTemp.decode()).encode()
 
-            print(serVal.decode().rstrip())
+            #print(serVal.decode().rstrip())
             self.array_value(int(serVal.decode()))
 
-            sleep(0.005)
+            sleep(0.0001)
 
     def graphupdate(self,args):
         if self.PlotUpd:
