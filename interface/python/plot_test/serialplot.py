@@ -23,7 +23,6 @@ class SerialPlotTest():
     DataLong    = 2048
     DataIdx     = 0
     PlotUpd     = True
-    SerBuff     = ''
     SerThdRun   = True
 
     def __init__(self):
@@ -99,10 +98,11 @@ class SerialPlotTest():
 
     def serial_read(self):
         while self.SerThdRun:
-            self.SerBuff = self.serPort.readline()
-            print(input(self.SerBuff))
-            #self.array_value(int(self.SerBuff))
-            self.serPort.flush()
+            serVal = self.serPort.readline()
+            valY = int(serVal)
+            print(valY)
+            self.array_value(valY)
+
             sleep(0.01)
 
     def graphupdate(self,args):
