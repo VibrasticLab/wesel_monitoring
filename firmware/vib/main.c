@@ -33,6 +33,10 @@ int main(void) {
   chSysInit();
 
   vib_Serial_Init();
+#if VIB_USE_USB
+  vib_USBSerial_Init();
+#endif
+  vib_Shell_Init();
   vib_Analog_Init();
 
   /*
@@ -43,6 +47,9 @@ int main(void) {
 
   while (true) {
     vib_Serial_Loop();
+#if VIB_USE_USB
+    vib_USBSerial_Loop();
+#endif
     chThdSleepMilliseconds(500);
   }
 }

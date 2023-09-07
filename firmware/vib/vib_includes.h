@@ -9,6 +9,14 @@
 #ifndef _VIB_INCLUDES_H_
 #define _VIB_INCLUDES_H_
 
+/**
+ * @brief USE USB Serial for Data Stream
+ * @details WARNING: ADC Data Burst using USB Serial resulting RTOS/DMA crash
+ * @details Should always FALSE
+ *
+ */
+#define VIB_USE_USB     FALSE
+
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
