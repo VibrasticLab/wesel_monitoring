@@ -33,17 +33,17 @@
 
 \begin{document}
 	\pagestyle{fancy}
-	
+
 	\lhead{Achmadi ST MT}
 	\chead{\today}
 	\rhead{Specification Document}
-	
+
 	\onecolumn
 	\begin{figure}
-		
+
 	\end{figure}\begin{minipage}{0.47\textwidth}
 		\centering
-		
+
 	\end{minipage}
 	\hfill
 	\begin{minipage}{0.47\textwidth}
@@ -53,7 +53,7 @@
 
 	\begin{figure}
 		\begin{minipage}{0.47\textwidth}
-			
+
 			\section{Overview}
 			\begin{itemize}
 				\item Based on TE-830M1-0025 MEMS chip package
@@ -61,7 +61,7 @@
 				\item Can be interfaced at 115200 Serial protocol
 				\item Can operated on low-power batteries
 			\end{itemize}
-			
+
 		\end{minipage}
 		\hfill
 		\begin{minipage}{0.47\textwidth}
@@ -71,16 +71,16 @@
 	\end{figure}
 
 	\raggedright
-	
+
 	\section{Project Repository}
-	
+
 	\begin{itemize}
 		\item PCB Design: \url{https://github.com/VibrasticLab/wesel_monitoring/tree/master/circuit/mems_vibs}
-		
+
 		\item Firmware: \url{https://github.com/VibrasticLab/wesel_monitoring/tree/master/firmware}
-		
+
 		\item Interface: \url{https://github.com/VibrasticLab/wesel_monitoring/tree/master/interface/python/plot_test}
-		
+
 		\item Overall Repository: \url{https://github.com/VibrasticLab/wesel_monitoring/}
 	\end{itemize}
 
@@ -90,7 +90,7 @@
 		\toprule
 		Parts & Unit & Value \\
 		\midrule
-		Power voltage & $V$ & 3.3 to 4.5 \\
+		Power voltage & $V$ & 3.7 to 7.4 \\
 		Operation voltage & $V$ & 3.3 \\
 		Main Chip & & STM32Fx LQFP64 \\
 		Storage & & Internal EEPROM \\
@@ -102,10 +102,10 @@
 	\end{tabular}
 
 	\raggedright
-	
+
 	\newpage
 	\section{Unit Preview}
-	
+
 	\begin{figure}[h]
 		\centering
 		\begin{subfigure}{0.45\textwidth}
@@ -119,13 +119,37 @@
 	\end{figure}
 
 	\section{Unit Testing}
-	
+
 	\subsection{Testing Diagram}
-	
+
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.75\textwidth]{images/testing.png}
-		\caption{Electrical Wiring}
+		\caption{Diagram}
+	\end{figure}
+
+	\newpage
+	\subsection{Testing Setup}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.65\textwidth]{images/testactual.jpg}
+		\caption{Testing}
+	\end{figure}
+
+	\section{Interface}
+
+	Interface prototype summary:
+	\begin{itemize}
+		\item Written for Python 3.6+ using Tkinter, Numpy, and Matplotlib.
+		Planned to be enhanced with Tensorflow or Scikit-Learn.
+
+		\item Fast Serial data using PySerial and compatible both Windows or Unix drivers.
+	\end{itemize}
+		\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.6\textwidth]{images/protoiface.png}
+		\caption{Python Interface}
 	\end{figure}
 
 \end{document}
