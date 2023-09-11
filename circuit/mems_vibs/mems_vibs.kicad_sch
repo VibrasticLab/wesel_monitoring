@@ -4,6 +4,14 @@
 
   (paper "A4")
 
+  (title_block
+    (title "Custom Vibration Sensor")
+    (date "2023-09-11")
+    (rev "v0.1")
+    (company "Vibrastic Labs")
+    (comment 1 "Author: Achmadi ST MT")
+  )
+
   (lib_symbols
     (symbol "Connector:Conn_01x02_Pin" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 2.54 0)
