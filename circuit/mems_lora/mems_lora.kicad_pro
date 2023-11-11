@@ -445,7 +445,7 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "exports/3d/mems_lora.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

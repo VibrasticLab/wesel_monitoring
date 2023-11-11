@@ -8,4 +8,5 @@ model
 *.bak
 *.png
 *.jpg
+*.lck
 exports/
