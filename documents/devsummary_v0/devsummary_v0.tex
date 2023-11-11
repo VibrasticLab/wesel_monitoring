@@ -13,6 +13,7 @@
 \usepackage{minted} % paket untuk source code
 \usepackage{xcolor} % paket buat warna
 \usepackage{hyperref} % paket buat link-link an
+\usepackage{minted} % paket lingkungan kode sumber
 
 %%%%% Pengaturan ukuran kertas dan margin %%%%%
 \geometry{
@@ -36,8 +37,11 @@
 
 \definecolor{LightGray}{gray}{0.95}
 
-\hypersetup{%
-	pdfborder = {0 0 0}
+\hypersetup{
+	colorlinks=true, %set true if you want colored links
+	linktoc=all,     %set to all if you want both sections and subsections linked
+	linkcolor=blue,  %choose some color if you want links to stand out
+	urlcolor=blue,   %url color
 }
 
 \begin{document}
@@ -142,7 +146,7 @@
 	
 	\subsection{Setup Pengujian}
 	
-	\begin{figure}[h]
+	\begin{figure}[!ht]
 		\centering
 		\begin{subfigure}{0.3\textwidth}
 			\includegraphics[width=\textwidth]{images/vibparts.png}
@@ -162,7 +166,7 @@
 	\end{figure}
 	
 	\newpage
-	\begin{figure}[h]
+	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=0.65\textwidth]{images/testactual.jpg}
 		\caption{Dokumentasi Testing}
@@ -170,6 +174,204 @@
 	
 	\subsection{Desain Purwarupa}
 	
+	\begin{itemize}
+		\item Skematik: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/circuit/mems_vibs/mems_vibs.kicad_sch}{Github}
+		
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=\textwidth]{images/mems_vibs-sch.png}
+			\caption{Skematik}
+		\end{figure}
+		
+		\newpage
+		\item Layout: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/circuit/mems_vibs/mems_vibs.kicad_pcb}{Github}
+		
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=\textwidth]{images/mems_vibs-brd.png}
+			\caption{Layout PCB}
+		\end{figure}
 	
+		\item Code Snippet untuk sampling ADC dengan sampling interval setiap 125uS dan print out ke Serial UART.\\
+		Source: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/firmware/vib/vib_analog.c#L42-L64}{Github}
+
+		\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+if(adcp->state == ADC_COMPLETE){
+	sum_adc_tps = 0;
 	
+	for(i=0;i<ADC_GRP1_BUF_DEPTH;i++){
+		sum_adc_tps = sum_adc_tps + samples[0 + (i*ADC_GRP1_NUM_CHANNELS)];
+	}
+	
+	adc_z = sum_adc_tps/10;
+	
+	chprintf((BaseSequentialStream*)&SD1,"%4i\r\n",adc_z);
+}
+		\end{minted}
+		
+		\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+static THD_WORKING_AREA(wa_adcThread, 128);
+static THD_FUNCTION(adcThread, arg) {
+	(void)arg;
+	while (TRUE) {
+		chThdSleepMicroseconds(125);
+		adcStartConversion(&ADCD1, &adcgrpcfg, samples, ADC_GRP1_BUF_DEPTH);
+	}
+}
+		\end{minted}
+		
+		\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+palSetPadMode(GPIOA, 0, PAL_MODE_INPUT_ANALOG);
+
+adcStart(&ADCD1, NULL);
+chThdCreateStatic(wa_adcThread, sizeof(wa_adcThread), NORMALPRIO, adcThread, NULL);
+
+palSetPadMode(GPIOA, 9, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+palSetPadMode(GPIOA, 10, PAL_MODE_INPUT);
+
+sdStart(&SD1, NULL);
+		\end{minted}
+
+	\newpage
+	
+	\item Code Snippet untuk Interface untuk menerima data plot di komputer via serial USB.\\
+	Source: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/interface/python/plot_test/serialplot.py}{Github} 
+	
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=\textwidth]{images/protoiface.png}
+		\caption{Interface}
+	\end{figure}
+	\end{itemize}
+	
+	\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+self.canvas = FigureCanvasTkAgg(self.fig, master=self.graphfrm)
+self.canvas.draw()
+self.canvas.get_tk_widget().pack(side=tk.LEFT)
+
+self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=0)
+
+self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.00005, repeat=False, cache_frame_data=False)
+self.aniplot._start()
+
+self.serThd = thd(target=self.serial_read).start()
+	\end{minted}
+	
+	\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+ def serial_read(self):
+	while self.SerThdRun:
+	serVal = self.serPort.readline()
+	if len(serVal)>5: # %4i and CR/LF
+	valY = int(serVal)
+	self.array_value(valY)
+	
+	sleep(0.0001)
+	\end{minted}
+	
+	\newpage
+	\section{Radio Testing}
+	
+	Tahapan ini bertujuan untuk menguji modul radio SX1278 dan antar muka ke chip STM32.
+	
+	\subsection{Setup Pengujian}
+	
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=0.6\textwidth]{images/lora/tesLora.png}
+		\caption{Diagram Pengujian LoRa}
+	\end{figure}
+	
+	\begin{figure}[!ht]
+		\centering
+		\includegraphics[width=0.5\textwidth,angle=180]{images/lorates.jpg}
+		\caption{Setup Pengujian LoRa}
+	\end{figure}
+	
+	\newpage
+	
+	Hasil pengembangan:
+	
+	\begin{figure}[!ht]
+		\centering
+		\begin{subfigure}{0.4\textwidth}
+			\includegraphics[width=\textwidth]{images/lorasend.png}
+			\caption{Transmitter}
+		\end{subfigure}
+		\begin{subfigure}{0.4\textwidth}
+			\includegraphics[width=\textwidth]{images/lorareceiv.png}
+			\caption{Receiver}
+		\end{subfigure}
+		\caption{Testing Komunikasi}
+	\end{figure}
+	
+	Dikembangkan pustaka LoRa via SPI untuk abstraksi ChibiOS/RT pada target chip STM32: \href{https://github.com/mekatronik-achmadi/example_collection/tree/master/embedded/stm32/bluepill_lora/lora}{Github}.
+	
+	\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+static const SPIConfig spicfg = {
+	NULL,
+	GPIOA,
+	LORA_DEFAULT_NSS_PIN,
+	0
+};
+	\end{minted}
+	
+	\begin{minted}[frame=lines,framesep=2mm,fontsize=\normalsize,bgcolor=LightGray]{c}
+static uint8_t lora_singleTransfer(uint8_t address, uint8_t value){
+	uint8_t txbuf[1], rxbuf[1];
+	
+	txbuf[0] = value;
+	
+	palClearPad(GPIOA, LORA_DEFAULT_NSS_PIN);
+	
+	spiSelect(&SPID1);
+	spiSend(&SPID1, sizeof(address), &address);
+	spiExchange(&SPID1, sizeof(txbuf), txbuf, rxbuf);
+	spiUnselect(&SPID1);
+	
+	palSetPad(GPIOA, LORA_DEFAULT_NSS_PIN);
+	
+	return rxbuf[0];
+}
+	\end{minted}
+	
+	\newpage
+	\section{Pengembangan Selanjutnya}
+	
+	\subsection{Desain}
+	
+	\begin{itemize}
+		\item Skematik: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/circuit/mems_lora/mems_lora.kicad_sch}{Github}
+	
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=\textwidth]{images/mems_lora-sch.png}
+			\caption{Skematik}
+		\end{figure}
+		
+		\item PCB: \href{https://github.com/VibrasticLab/wesel_monitoring/blob/master/circuit/mems_lora/mems_lora.kicad_pcb}{Github}
+		
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=\textwidth]{images/mems_lora-brd.png}
+			\caption{PCB}
+		\end{figure}
+		
+		\newpage
+		\item MockUp Unit
+		
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=0.6\textwidth]{images/mems_lora.png}
+			\caption{Mockup Unit}
+		\end{figure}
+		
+		\item MockUp Casing
+		
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=0.8\textwidth]{images/casingpov.png}
+			\caption{Mockup Casing}
+		\end{figure}
+	
+	\end{itemize}
 \end{document}

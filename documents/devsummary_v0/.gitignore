@@ -8,3 +8,4 @@
 *.lot
 *.toc
 *.synctex.gz
+_minted*/
