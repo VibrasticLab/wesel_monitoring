@@ -8,9 +8,13 @@
 
 #include "vib_includes.h"
 
+#define CALIB   0.5
+#define OFFSET  0
+
 static adcsample_t samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
 static uint32_t sum_adc_tps;
 static adcsample_t adc_z;
+static adcsample_t caladc_z;
 
 extern SerialUSBDriver SDU1;
 
@@ -28,12 +32,13 @@ void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n){
         }
 
         adc_z = sum_adc_tps/10;
+        caladc_z = CALIB * adc_z + OFFSET;
 
 #if VIB_USE_USB
         // This part makes RTOS or DMA crashed
         chprintf((BaseSequentialStream*)&SDU1,"%4i\r\n",adc_z);
 #else
-        chprintf((BaseSequentialStream*)&SD1,"%4i\r\n",adc_z);
+        chprintf((BaseSequentialStream*)&SD1,"%4i\r\n",caladc_z);
 #endif
 
     }

@@ -56,10 +56,15 @@ class SerialPlotTest():
         self.pausebtn.config(font=wndfont)
         self.pausebtn.pack(side=tk.RIGHT)
 
+        # Save Data Button
+        self.savdatbtn = tk.Button(self.buttonfrm, text="Dump", command=self.csv_save)
+        self.savdatbtn.config(font=wndfont)
+        self.savdatbtn.pack(side=tk.LEFT)
+
         # Save Image Button
-        self.pausebtn = tk.Button(self.buttonfrm, text="Save", command=self.plot_save)
-        self.pausebtn.config(font=wndfont)
-        self.pausebtn.pack(side=tk.LEFT)
+        self.savimgbtn = tk.Button(self.buttonfrm, text="Save", command=self.plot_save)
+        self.savimgbtn.config(font=wndfont)
+        self.savimgbtn.pack(side=tk.LEFT)
 
         # Graph Frame
         self.graphfrm = tk.Frame()
@@ -119,6 +124,11 @@ class SerialPlotTest():
         # window loop
         self.window.protocol("WM_DELETE_WINDOW",self.wnd_closing)
         self.window.mainloop()
+
+    def csv_save(self):
+        self.PlotUpd = False
+        # write CSV/MAT
+        self.PlotUpd = True
 
     def plot_save(self):
         self.SavName = str(filedlg.asksaveasfilename(
