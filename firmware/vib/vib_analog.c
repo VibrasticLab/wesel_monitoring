@@ -8,7 +8,7 @@
 
 #include "vib_includes.h"
 
-#define CALIB   0.5
+#define CALIB   1
 #define OFFSET  0
 
 static adcsample_t samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];

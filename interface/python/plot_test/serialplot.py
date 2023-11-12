@@ -73,6 +73,10 @@ class SerialPlotTest():
         self.X = np.arange(0, self.DataLong, 1)
         self.Y = np.zeros(self.DataLong, dtype='i2')
 
+        # Main Data
+        self.timeData = np.asarray([self.X])
+        self.ampData = np.asarray([self.Y])
+
         # Graph FFT Data
         self.fs = 4000
         self.nfft = int(pow(2, np.ceil(np.log2(len(self.Y)))))
@@ -128,14 +132,22 @@ class SerialPlotTest():
     def csv_save(self):
         self.PlotUpd = False
         # write CSV/MAT
+        self.SavDataName = str(filedlg.asksaveasfilename(
+            initialfile = 'data.csv',
+            defaultextension=".csv",
+            filetypes=[("CSV Data","*.csv")]))
+
+        self.vibData = np.asarray([self.timeData, self.ampData]).T
+        np.savetxt(self.SavDataName, self.vibData, delimiter=",")
+
         self.PlotUpd = True
 
     def plot_save(self):
-        self.SavName = str(filedlg.asksaveasfilename(
+        self.SavPlotName = str(filedlg.asksaveasfilename(
             initialfile = 'plot.png',
             defaultextension=".png",
             filetypes=[("PNG Image","*.png")]))
-        self.fig.savefig(self.SavName,format='png')
+        self.fig.savefig(self.SavPlotName,format='png')
 
     def plot_pause(self):
         if self.PlotUpd:
@@ -150,6 +162,10 @@ class SerialPlotTest():
         if self.DataIdx == self.DataLong:
             self.DataIdx = 0
             self.amp = np.abs(np.fft.fft(self.win * self.Y))[0:int(self.nfft/2+1)]
+
+            # save x (time) and y (amplitude) data to their array
+            self.timeData = np.append(self.timeData, self.X)
+            self.ampData = np.append(self.ampData, self.Y)
 
     def wnd_closing(self):
         self.SerThdRun = False
@@ -171,6 +187,7 @@ class SerialPlotTest():
         if self.PlotUpd:
             self.line1.set_data(self.X,self.Y)
             self.line2.set_data(self.freq,self.amp)
+
 
 if __name__ == "__main__":
     serplot = SerialPlotTest()
