@@ -32,12 +32,17 @@ int main(void) {
   halInit();
   chSysInit();
 
+  vib_Analog_Init();
+
   vib_Serial_Init();
+
 #if VIB_USE_USB
   vib_USBSerial_Init();
 #endif
+
+#if VIB_USE_SHELL
   vib_Shell_Init();
-  vib_Analog_Init();
+#endif
 
   /*
    * Creates the blinker thread.
@@ -46,7 +51,10 @@ int main(void) {
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   while (true) {
+#if VIB_USE_SHELL
     vib_Serial_Loop();
+#endif
+
 #if VIB_USE_USB
     vib_USBSerial_Loop();
 #endif

@@ -10,6 +10,12 @@
 #define _VIB_INCLUDES_H_
 
 /**
+ * @brief Serial using Shell or not for testing purpose
+ *
+ */
+#define VIB_USE_SHELL   FALSE
+
+/**
  * @brief USE USB Serial for Data Stream
  * @details WARNING: ADC Data Burst using USB Serial resulting RTOS/DMA crash
  * @details Should always FALSE

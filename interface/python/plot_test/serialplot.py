@@ -25,7 +25,9 @@ class SerialPlotTest():
     DataIdx     = 0
     PlotUpd     = True
     SerThdRun   = True
+    PrintY      = False
     SavName     = ''
+    BaudRate    = 57600
 
     def __init__(self):
         super(SerialPlotTest, self).__init__()
@@ -117,7 +119,7 @@ class SerialPlotTest():
         self.graphfrm.pack(side=tk.BOTTOM,expand=True)
 
         # Serial Port
-        self.serPort = serial.Serial(port=sys.argv[1],baudrate=115200,timeout=0)
+        self.serPort = serial.Serial(port=sys.argv[1],baudrate=self.BaudRate,timeout=0)
 
         # start graph animation
         self.aniplot = plotani.FuncAnimation(self.fig, self.graphupdate, interval=0.00005, repeat=False, cache_frame_data=False)
@@ -160,7 +162,9 @@ class SerialPlotTest():
         val_Y_mV = (val_Y * (3.3/4095)) - 1.15
         val_Y_g = val_Y_mV / (50/1000)
         self.Y[self.DataIdx] = val_Y_g
-        print(val_Y)
+
+        if self.PrintY:
+            print(val_Y)
 
         self.DataIdx = self.DataIdx + 1
         if self.DataIdx == self.DataLong:
