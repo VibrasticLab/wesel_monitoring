@@ -93,12 +93,12 @@ class SerialPlotTest():
         self.ax1 = self.fig.add_subplot(211)
         self.ax1.set_facecolor('white')
         self.ax1.grid(True,which='both',ls='-')
-        # self.ax1.set_ylim(1800,2200)
-        self.ax1.set_ylim(-10,20)
+        #self.ax1.set_ylim(-10,20)
         self.ax1.set_title("Vibration in Time domain")
         self.ax1.set_xlabel("Data point")
         self.ax1.set_ylabel("Amplitude")
         self.line1, = self.ax1.plot(self.X, self.Y)
+        self.ax1.autoscale(axis='y')
 
         # Spectrum domain Plot
         self.ax2 = self.fig.add_subplot(212)
@@ -183,9 +183,23 @@ class SerialPlotTest():
 
         self.window.destroy()
 
+    def port_read(self):
+        try:
+            dataIn = self.serPort.readline()
+        except serial.SerialException as e:
+            print(e)
+            return None
+        except TypeError as e:
+            #Disconnect of USB->UART occured
+            print(e)
+            self.SerPort.close()
+            return None
+        else:
+            return dataIn
+
     def serial_read(self):
         while self.SerThdRun:
-            serVal = self.serPort.readline()
+            serVal = self.port_read()
             if len(serVal)>5: # %4i and CR/LF
                 valY = int(serVal)
                 self.array_value(valY)
