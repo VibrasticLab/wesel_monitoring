@@ -29,6 +29,24 @@ class SerialPlotTest():
     SavName     = ''
     BaudRate    = 57600
 
+    # calibration values
+    # gain of least significant bit (LSB) value is user-defined by reading and converting ADC output data, resulting in zero values of g (in silent/no input condition)
+    # default values is 1 (section Finding the ADC Offset Error Example)
+    # https://www.allaboutcircuits.com/technical-articles/adc-offset-and-gain-error-specifications/
+    GainLsbCalib = 1.011
+
+    # LSB basically is ratio between full scale output voltage of ADC and number of bit combination (2^N)
+    Lsb = (2.5/4095)
+
+    # Since the FSO range from +- 1.25, so the output voltage need to be normalized as hown in Figure 1
+    # https://e2e.ti.com/blogs_/archives/b/precisionhub/posts/it-s-in-the-math-how-to-convert-adc-code-to-a-voltage-part-1
+    VoltageOffset = 1.25
+
+    # Sensitivity of accelerometer sensor 830m1-0025 (in V/g)
+    # https://www.ttieurope.com/content/dam/tti-europe/manufacturers/te-connectivity/resources/product-CAT-EAC0023.datasheet.pdf
+    Sensitivity = 50/1000
+
+
     def __init__(self):
         super(SerialPlotTest, self).__init__()
 
@@ -160,10 +178,9 @@ class SerialPlotTest():
             self.PlotUpd = True
 
     def array_value(self,val_Y):
-        gain_lsb_calib = 1.011
-        lsb = gain_lsb_calib * (2.5/4095)
-        val_Y_mV = (val_Y * lsb) - 1.25
-        val_Y_g = val_Y_mV / (50/1000)
+        lsb = self.GainLsbCalib * self.Lsb
+        val_Y_mV = (val_Y * lsb) - self.VoltageOffset
+        val_Y_g = val_Y_mV / self.Sensitivity
         self.Y[self.DataIdx] = val_Y_g
         print(val_Y_g)
 
