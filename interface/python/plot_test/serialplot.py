@@ -80,7 +80,7 @@ class SerialPlotTest():
         self.ampData = np.asarray([self.Y])
 
         # Graph FFT Data
-        self.fs = 2000
+        self.fs = 500
         self.nfft = int(pow(2, np.ceil(np.log2(len(self.Y)))))
         self.win = np.hamming(self.nfft)
         self.freq = (self.fs / 2) * np.arange(0, 1, 1/(self.nfft/2+1))
@@ -93,18 +93,19 @@ class SerialPlotTest():
         self.ax1 = self.fig.add_subplot(211)
         self.ax1.set_facecolor('white')
         self.ax1.grid(True,which='both',ls='-')
-        #self.ax1.set_ylim(-10,20)
+        self.ax1.set_ylim(-1,1)
         self.ax1.set_title("Vibration in Time domain")
         self.ax1.set_xlabel("Data point")
-        self.ax1.set_ylabel("Amplitude")
+        self.ax1.set_ylabel("Amplitude (g)")
         self.line1, = self.ax1.plot(self.X, self.Y)
-        self.ax1.autoscale(axis='y')
+        self.ax1.relim()
+        self.ax1.autoscale_view()
 
         # Spectrum domain Plot
         self.ax2 = self.fig.add_subplot(212)
         self.ax2.set_facecolor('white')
         self.ax2.grid(True,which='both',ls='-')
-        self.ax2.set_ylim(0,10000)
+        self.ax2.set_ylim(0,1)
         self.ax2.set_title("Vibration in Spectrum domain")
         self.ax2.set_xlabel("FFT point")
         self.ax2.set_ylabel("Magnitude")
@@ -159,9 +160,12 @@ class SerialPlotTest():
             self.PlotUpd = True
 
     def array_value(self,val_Y):
-        val_Y_mV = (val_Y * (3.3/4095)) - 1.15
+        gain_lsb_calib = 1.011
+        lsb = gain_lsb_calib * (2.5/4095)
+        val_Y_mV = (val_Y * lsb) - 1.25
         val_Y_g = val_Y_mV / (50/1000)
         self.Y[self.DataIdx] = val_Y_g
+        print(val_Y_g)
 
         if self.PrintY:
             print(val_Y)
@@ -169,7 +173,7 @@ class SerialPlotTest():
         self.DataIdx = self.DataIdx + 1
         if self.DataIdx == self.DataLong:
             self.DataIdx = 0
-            # self.Y = self.Y - np.mean(self.Y)
+            self.Y = self.Y - np.mean(self.Y)
             self.amp = (2/len(self.Y)) * np.abs(np.fft.fft(self.win * self.Y))[0:int(self.nfft/2+1)]
 
             # save x (time) and y (amplitude) data to their array
