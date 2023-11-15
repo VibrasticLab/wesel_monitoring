@@ -25,9 +25,9 @@ class SerialPlotTest():
     DataIdx     = 0
     PlotUpd     = True
     SerThdRun   = True
-    PrintY      = False
+    PrintY      = True
     SavName     = ''
-    BaudRate    = 57600
+    BaudRate    = 115200
 
     # calibration values
     # gain of least significant bit (LSB) value is user-defined by reading and converting ADC output data, resulting in zero values of g (in silent/no input condition)
@@ -182,16 +182,18 @@ class SerialPlotTest():
         val_Y_mV = (val_Y * lsb) - self.VoltageOffset
         val_Y_g = val_Y_mV / self.Sensitivity
         self.Y[self.DataIdx] = val_Y_g
-        print(val_Y_g)
-
+        
         if self.PrintY:
-            print(val_Y)
+            print(val_Y_g)
 
         self.DataIdx = self.DataIdx + 1
         if self.DataIdx == self.DataLong:
             self.DataIdx = 0
-            self.Y = self.Y - np.mean(self.Y)
-            self.amp = (2/len(self.Y)) * np.abs(np.fft.fft(self.win * self.Y))[0:int(self.nfft/2+1)]
+            self.Y = self.Y - np.mean(self.Y) 
+            self.Y_offset = self.Y # - np.mean(self.Y) 
+            
+            # TODO: need to add overlap on FFT calculation
+            self.amp = (2/len(self.Y_offset)) * np.abs(np.fft.fft(self.win * self.Y_offset))[0:int(self.nfft/2+1)]
 
             # save x (time) and y (amplitude) data to their array
             self.timeData = np.append(self.timeData, self.X)
@@ -225,7 +227,7 @@ class SerialPlotTest():
                 valY = int(serVal)
                 self.array_value(valY)
 
-            sleep(0.0001)
+            # sleep(0.0001)
 
     def graphupdate(self,args):
         if self.PlotUpd:
