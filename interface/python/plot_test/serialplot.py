@@ -33,7 +33,7 @@ class SerialPlotTest():
     # gain of least significant bit (LSB) value is user-defined by reading and converting ADC output data, resulting in zero values of g (in silent/no input condition)
     # default values is 1 (section Finding the ADC Offset Error Example)
     # https://www.allaboutcircuits.com/technical-articles/adc-offset-and-gain-error-specifications/
-    GainLsbCalib = 1.011
+    GainLsbCalib = 1.015
 
     # LSB basically is ratio between full scale output voltage of ADC and number of bit combination (2^N)
     Lsb = (2.5/4095)
@@ -102,9 +102,11 @@ class SerialPlotTest():
         self.nfft = int(pow(2, np.ceil(np.log2(len(self.Y)))))
         self.win = np.hamming(self.nfft)
         self.freq = (self.fs / 2) * np.arange(0, 1, 1/(self.nfft/2+1))
-        self.amp = np.zeros(int(self.nfft/2+1), dtype='i2')
+        self.ampFFT = np.zeros(int(self.nfft/2+1), dtype='i2')
+        self.nOverlap = int(self.DataLong / 2)
+        self.YFFT = np.zeros(self.DataLong)
 
-        # Example Figure Plot
+        # Live Monitoring Figure Plot
         self.fig = Figure(figsize=(11, 9), dpi=100,facecolor='white', tight_layout=True)
 
         # Time domain Plot
@@ -127,7 +129,7 @@ class SerialPlotTest():
         self.ax2.set_title("Vibration in Spectrum domain")
         self.ax2.set_xlabel("FFT point")
         self.ax2.set_ylabel("Magnitude")
-        self.line2, = self.ax2.plot(self.freq, self.amp)
+        self.line2, = self.ax2.plot(self.freq, self.ampFFT)
 
         style.use('ggplot')
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.graphfrm)
@@ -182,22 +184,34 @@ class SerialPlotTest():
         val_Y_mV = (val_Y * lsb) - self.VoltageOffset
         val_Y_g = val_Y_mV / self.Sensitivity
         self.Y[self.DataIdx] = val_Y_g
+
+        # storage Y data for overlapping during FFT computation
+        if self.DataIdx+self.nOverlap-2 == len(self.YFFT)-1:
+            self.YFFT[self.DataIdx+self.nOverlap-2] = val_Y_g
+            self.YFFT[0:self.nOverlap-1] = self.YFFT[self.nOverlap:-1]
+        elif self.DataIdx+self.nOverlap-2 < len(self.YFFT)-1:
+            self.YFFT[self.DataIdx+self.nOverlap-2] = val_Y_g
+        else:
+            self.YFFT[self.DataIdx] = val_Y_g
         
         if self.PrintY:
             print(val_Y_g)
-
-        self.DataIdx = self.DataIdx + 1
-        if self.DataIdx == self.DataLong:
+              
+        if self.DataIdx == self.DataLong-1:
             self.DataIdx = 0
-            self.Y = self.Y - np.mean(self.Y) 
-            self.Y_offset = self.Y # - np.mean(self.Y) 
+            self.Y = self.Y - np.mean(self.Y) + np.mean(self.Y) 
             
-            # TODO: need to add overlap on FFT calculation
-            self.amp = (2/len(self.Y_offset)) * np.abs(np.fft.fft(self.win * self.Y_offset))[0:int(self.nfft/2+1)]
-
             # save x (time) and y (amplitude) data to their array
             self.timeData = np.append(self.timeData, self.X)
             self.ampData = np.append(self.ampData, self.Y)
+        
+        if self.DataIdx == self.nOverlap:
+            self.Y_offset = self.YFFT - np.mean(self.YFFT) 
+            
+            # TODO: need to add overlap on FFT calculation
+            self.ampFFT = (2/len(self.Y_offset)) * np.abs(np.fft.fft(self.win * self.Y_offset))[0:int(self.nfft/2+1)]
+                     
+        self.DataIdx = self.DataIdx + 1
 
     def wnd_closing(self):
         self.SerThdRun = False
@@ -232,7 +246,7 @@ class SerialPlotTest():
     def graphupdate(self,args):
         if self.PlotUpd:
             self.line1.set_data(self.X,self.Y)
-            self.line2.set_data(self.freq,self.amp)
+            self.line2.set_data(self.freq,self.ampFFT)
 
 
 if __name__ == "__main__":
