@@ -27,7 +27,7 @@ class SerialPlotTest():
     DataIdx     = 0
     PlotUpd     = True
     SerThdRun   = True
-    PrintY      = True
+    PrintY      = False
     SavName     = ''
     BaudRate    = 115200
 
@@ -182,7 +182,7 @@ class SerialPlotTest():
         axs[0].set_facecolor('white')
         axs[0].grid(True,which='both',ls='-')
         axs[0].set_ylim(-1,1)
-        axs[0].set_title("Vibration in Time domain")
+        axs[0].set_title("Vibration in Time domain",fontsize=12)
         axs[0].set_xlabel("Time (s)")
         axs[0].set_ylabel("Amplitude (g)")
         axs[0].plot(self.timeData, self.ampData)
@@ -191,7 +191,7 @@ class SerialPlotTest():
 
         # Spectrum domain Plot
         axs[1].set_facecolor('white')
-        axs[1].set_title("Vibration in Spectrum domain")
+        axs[1].set_title("Vibration in Spectrum domain",fontsize=12)
         axs[1].set_xlabel("FFT point")
         axs[1].set_ylabel("Magnitude")
 
@@ -200,9 +200,9 @@ class SerialPlotTest():
         inner_pad = np.zeros(self.nfft)
 
         proc = np.concatenate((self.ampData, np.zeros(pad_end_size)))
-        tft_result = np.empty((self.total_segments, self.nfft), dtype=np.float32)
+        stft_result = np.empty((total_segments, self.nfft), dtype=np.float32)
 
-        for i in range(self.total_segments):
+        for i in range(total_segments):
             idx_hop = self.nOverlap * i
             segment = proc[idx_hop:idx_hop + self.nfft]
             windowed = segment * self.win
@@ -211,11 +211,12 @@ class SerialPlotTest():
             autopower = np.abs(spectrum * np.conj(spectrum))
             stft_result[i, :] = autopower[:self.nfft]
 
-        stft_result = 20 * np.log10(self.stft_result)
-        stft_result = np.clip(self.stft_result, -40, 200)
+        stft_result = 20 * np.log10(stft_result)
+        stft_result = np.clip(stft_result, -40, 200)
 
-        axs[1].imshow(self.stft_result, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
+        axs[1].imshow(stft_result, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
 
+        fig.tight_layout()
         plt.show()
 
     def plot_save(self):
@@ -248,7 +249,7 @@ class SerialPlotTest():
         else:
             self.YFFT[self.DataIdx] = val_Y_g
 
-        if self.PrintY:
+        if self.PrintY or os.name=='nt':
             print(val_Y_g)
 
         if self.DataIdx == self.DataLong-1:
