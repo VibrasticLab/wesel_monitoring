@@ -272,6 +272,7 @@ class SerialPlotTest():
         if self.serPort.is_open:
             self.serPort.close()
 
+        plt.close('all')
         self.window.destroy()
 
     def port_read(self):
