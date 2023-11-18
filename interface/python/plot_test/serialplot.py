@@ -11,8 +11,10 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import matplotlib.animation as plotani
 from matplotlib.figure import Figure
 from matplotlib import style
+import matplotlib.pyplot as plt
 
 # additional
+import os
 import sys
 import serial
 import numpy as np
@@ -85,7 +87,7 @@ class SerialPlotTest():
         self.savimgbtn = tk.Button(self.buttonfrm, text="Save", command=self.plot_save)
         self.savimgbtn.config(font=wndfont)
         self.savimgbtn.pack(side=tk.LEFT)
-        
+
         # Show Image of All Data Button
         self.savimgbtn = tk.Button(self.buttonfrm, text="Show All", command=self.plot_all_data)
         self.savimgbtn.config(font=wndfont)
@@ -166,59 +168,56 @@ class SerialPlotTest():
             initialfile = 'data.csv',
             defaultextension=".csv",
             filetypes=[("CSV Data","*.csv")]))
-        
+
         self.vibData = np.round(np.asarray([self.timeData, self.ampData]), 2).T
         np.savetxt(self.SavDataName, self.vibData, delimiter=",")
 
         self.PlotUpd = True
         self.SerThdRun = True
-        
-    def plot_all_data(self): # ERROR, plot didnt show up
-        # Figure Plot of All Data
-        self.fig_all_data = Figure(figsize=(11, 9), dpi=100,facecolor='white', tight_layout=True)
 
-        # Time domain Plot
-        self.ax1_all_data = self.fig_all_data.add_subplot(211)
-        self.ax1_all_data.set_facecolor('white')
-        self.ax1_all_data.grid(True,which='both',ls='-')
-        self.ax1_all_data.set_ylim(-1,1)
-        self.ax1_all_data.set_title("Vibration in Time domain")
-        self.ax1_all_data.set_xlabel("Time (s)")
-        self.ax1_all_data.set_ylabel("Amplitude (g)")
-        self.line1_all_data, = self.ax1_all_data.plot(self.timeData, self.ampData)
-        self.ax1_all_data.relim()
-        self.ax1_all_data.autoscale_view()
+    def plot_all_data(self):
+        fig, axs = plt.subplots(2)
+
+        # Plot of All Data
+        axs[0].set_facecolor('white')
+        axs[0].grid(True,which='both',ls='-')
+        axs[0].set_ylim(-1,1)
+        axs[0].set_title("Vibration in Time domain")
+        axs[0].set_xlabel("Time (s)")
+        axs[0].set_ylabel("Amplitude (g)")
+        axs[0].plot(self.timeData, self.ampData)
+        axs[0].relim()
+        axs[0].autoscale_view()
 
         # Spectrum domain Plot
-        self.ax2_all_data = self.fig_all_data.add_subplot(212)
-        self.ax2_all_data.set_facecolor('white')
-        self.ax2_all_data.set_title("Vibration in Spectrum domain")
-        self.ax2_all_data.set_xlabel("FFT point")
-        self.ax2_all_data.set_ylabel("Magnitude")
-        
-        self.pad_end_size = self.nfft
-        self.total_segments = int(np.ceil(len(self.ampData) / self.nOverlap))
-        self.inner_pad = np.zeros(self.nfft)
-        
-        self.proc = np.concatenate((self.ampData, np.zeros(self.pad_end_size)))
-        self.stft_result = np.empty((self.total_segments, self.nfft), dtype=np.float32)
-        
+        axs[1].set_facecolor('white')
+        axs[1].set_title("Vibration in Spectrum domain")
+        axs[1].set_xlabel("FFT point")
+        axs[1].set_ylabel("Magnitude")
+
+        pad_end_size = self.nfft
+        total_segments = int(np.ceil(len(self.ampData) / self.nOverlap))
+        inner_pad = np.zeros(self.nfft)
+
+        proc = np.concatenate((self.ampData, np.zeros(pad_end_size)))
+        tft_result = np.empty((self.total_segments, self.nfft), dtype=np.float32)
+
         for i in range(self.total_segments):
             idx_hop = self.nOverlap * i
-            segment = self.proc[idx_hop:idx_hop + self.nfft]
+            segment = proc[idx_hop:idx_hop + self.nfft]
             windowed = segment * self.win
-            padded = np.append(windowed, self.inner_pad)
+            padded = np.append(windowed, inner_pad)
             spectrum = np.fft.fft(padded) / self.nfft
             autopower = np.abs(spectrum * np.conj(spectrum))
-            self.stft_result[i, :] = autopower[:self.nfft]
-            
-        self.stft_result = 20 * np.log10(self.stft_result)
-        self.stft_result = np.clip(self.stft_result, -40, 200)
-        
-        self.img_spectrum_all_data = self.ax2.imshow(self.stft_result, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
-        
-        self.fig_all_data.show()
-        
+            stft_result[i, :] = autopower[:self.nfft]
+
+        stft_result = 20 * np.log10(self.stft_result)
+        stft_result = np.clip(self.stft_result, -40, 200)
+
+        axs[1].imshow(self.stft_result, origin='lower', cmap='jet', interpolation='nearest', aspect='auto')
+
+        plt.show()
+
     def plot_save(self):
         self.SavPlotName = str(filedlg.asksaveasfilename(
             initialfile = 'plot.png',
@@ -248,24 +247,24 @@ class SerialPlotTest():
             self.YFFT[self.DataIdx+self.nOverlap-2] = val_Y_g
         else:
             self.YFFT[self.DataIdx] = val_Y_g
-        
+
         if self.PrintY:
             print(val_Y_g)
-              
+
         if self.DataIdx == self.DataLong-1:
             self.DataIdx = 0
-            self.Y = self.Y - np.mean(self.Y) + np.mean(self.Y) 
-            
+            self.Y = self.Y - np.mean(self.Y) + np.mean(self.Y)
+
             # save x (time) and y (amplitude) data to their array
             self.ampData = np.append(self.ampData, self.Y)
             self.timeData = np.linspace(0, len(self.ampData)-1, len(self.ampData)) / self.fs
-        
+
         if self.DataIdx == self.nOverlap:
-            self.Y_offset = self.YFFT - np.mean(self.YFFT) 
-            
+            self.Y_offset = self.YFFT - np.mean(self.YFFT)
+
             # TODO: need to add overlap on FFT calculation
             self.ampFFT = (2/len(self.Y_offset)) * np.abs(np.fft.fft(self.win * self.Y_offset))[0:int(self.nfft/2+1)]
-                     
+
         self.DataIdx = self.DataIdx + 1
 
     def wnd_closing(self):
@@ -296,13 +295,13 @@ class SerialPlotTest():
                 valY = int(serVal)
                 self.array_value(valY)
 
-            # sleep(0.0001)
+            if os.name == 'posix':
+                sleep(0.0001)
 
     def graphupdate(self,args):
         if self.PlotUpd:
             self.line1.set_data(self.X,self.Y)
             self.line2.set_data(self.freq,self.ampFFT)
-
 
 if __name__ == "__main__":
     serplot = SerialPlotTest()
