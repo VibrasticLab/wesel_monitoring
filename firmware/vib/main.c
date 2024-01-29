@@ -17,8 +17,12 @@ static THD_FUNCTION(Thread1, arg) {
   (void)arg;
   chRegSetThreadName("blinker");
   while (true) {
+    palSetPad(GPIOB, 3);
+    palClearPad(GPIOB, 4);
     palClearPad(GPIOB, 6);
     chThdSleepMilliseconds(500);
+    palSetPad(GPIOB, 3);
+    palClearPad(GPIOB, 4);
     palSetPad(GPIOB, 6);
     chThdSleepMilliseconds(500);
   }
@@ -32,9 +36,13 @@ int main(void) {
   halInit();
   chSysInit();
 
+#if VIB_USE_ANALOG
   vib_Analog_Init();
+#endif
 
+#if VIB_USE_SERIAL
   vib_Serial_Init();
+#endif
 
 #if VIB_USE_USB
   vib_USBSerial_Init();
@@ -47,6 +55,8 @@ int main(void) {
   /*
    * Creates the blinker thread.
    */
+  palSetPadMode(GPIOB, 3, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPadMode(GPIOB, 4, PAL_MODE_OUTPUT_PUSHPULL);
   palSetPadMode(GPIOB, 6, PAL_MODE_OUTPUT_PUSHPULL);
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 

@@ -25,7 +25,7 @@
  * Board identifier.
  */
 #define BOARD_PNM_ECU
-#define BOARD_NAME              "PNM_ECU"
+#define BOARD_NAME              "VIBRASI"
 
 /*
  * Board frequencies.
