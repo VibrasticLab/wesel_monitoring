@@ -34,13 +34,14 @@ void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n){
         adc_z = sum_adc_tps/10;
         caladc_z = CALIB * adc_z + OFFSET;
 
-#if VIB_USE_USB
+#if VIB_USE_SERIAL
+ #if VIB_USE_USB
         // This part makes RTOS or DMA crashed
         chprintf((BaseSequentialStream*)&SDU1,"%4i\r\n",adc_z);
-#else
+ #else
         chprintf((BaseSequentialStream*)&SD1,"%4i\r\n",caladc_z);
+ #endif
 #endif
-
     }
 }
 

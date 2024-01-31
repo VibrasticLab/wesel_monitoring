@@ -10,7 +10,7 @@
 #define _VIB_INCLUDES_H_
 
 #define VIB_USE_ANALOG  TRUE
-#define VIB_USE_SERIAL  TRUE
+#define VIB_USE_SERIAL  FALSE
 
 /**
  * @brief Serial using Shell or not for testing purpose
