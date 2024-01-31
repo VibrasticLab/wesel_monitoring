@@ -59,7 +59,7 @@ static const ADCConversionGroup adcgrpcfg = {
     ADC_SQR3_SQ1_N(ADC_CHANNEL_IN0)
 };
 
-static THD_WORKING_AREA(wa_adcThread, 128);
+static THD_WORKING_AREA(wa_adcThread, 256);
 static THD_FUNCTION(adcThread, arg) {
   (void)arg;
   while (TRUE) {

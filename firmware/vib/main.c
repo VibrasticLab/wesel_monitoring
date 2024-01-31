@@ -21,8 +21,8 @@ static THD_FUNCTION(Thread1, arg) {
     palClearPad(GPIOB, 4);
     palClearPad(GPIOB, 6);
     chThdSleepMilliseconds(500);
-    palSetPad(GPIOB, 3);
-    palClearPad(GPIOB, 4);
+    palClearPad(GPIOB, 3);
+    palSetPad(GPIOB, 4);
     palSetPad(GPIOB, 6);
     chThdSleepMilliseconds(500);
   }
